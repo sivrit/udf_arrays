@@ -1,5 +1,5 @@
 /*
- * 
+
 Copyright (c) 2014, Tristan BARTEMENT
 All rights reserved.
 
@@ -85,16 +85,15 @@ int64_t sum_int32_be(UDF_INIT *initid __attribute__((unused)), UDF_ARGS *args,
   
   longlong sum = 0;
   
-  u_int32_t* data = (u_int32_t*)args->args[0]; 
+  int32_t* data = (int32_t*)args->args[0]; 
    for(int i = 0; i<intLen; i+=1) {
-    u_int32_t baseValue = data[i];
-    u_int32_t realValue = be32toh(baseValue);
+    int32_t baseValue = data[i];
+    int32_t realValue = be32toh(baseValue);
     sum += realValue;
   }
   
   return sum;
 }
-
 
 my_bool sum_int32_be_init(UDF_INIT *initid, UDF_ARGS *args, char *message) {
   if(args->arg_count != 1) {
