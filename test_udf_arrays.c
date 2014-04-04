@@ -32,21 +32,59 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include "CUnit/Basic.h"
 
+// input data is named as "sample_TYPE_ENDIANNESS_GROUP"
+// group being A, B or C
 
 // Sample A is { 0, 1, 2 }
-char sample_int32_be_A[] = {0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x01,  0x00,  0x00,  0x00,  0x02};
-char sample_int32_le_A[] = {0x00,  0x00,  0x00,  0x00,  0x01,  0x00,  0x00,  0x00,  0x02,  0x00,  0x00,  0x00};
+char sample_int32_be_A[] = {0x00,  0x00,  0x00,  0x00,
+                            0x00,  0x00,  0x00,  0x01,
+                            0x00,  0x00,  0x00,  0x02};
+char sample_int32_le_A[] = {0x00,  0x00,  0x00,  0x00,
+                            0x01,  0x00,  0x00,  0x00,
+                            0x02,  0x00,  0x00,  0x00};
 
-// Sample B is { 3, -4, -1 }
-char sample_int32_be_B[] = {0x00,  0x00,  0x00,  0x03,  0xFF,  0xFF,  0xFF,  0xFC,  0xFF,  0xFF,  0xFF,  0xFF};
-char sample_int32_le_B[] = {0x03,  0x00,  0x00,  0x00,  0xFC,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF};
+char sample_int64_be_A[] = {0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,
+                            0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x01,
+                            0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x02};
+char sample_int64_le_A[] = {0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00, 
+                            0x01,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00, 
+                            0x02,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00};
+
+// Sample B is { 3, -4, -1 }, or { 3, 4, 1 } for unsigned data
+char sample_int32_be_B[] = {0x00,  0x00,  0x00,  0x03,
+                            0xFF,  0xFF,  0xFF,  0xFC, 
+                            0xFF,  0xFF,  0xFF,  0xFF};
+char sample_int32_le_B[] = {0x03,  0x00,  0x00,  0x00,
+                            0xFC,  0xFF,  0xFF,  0xFF, 
+                            0xFF,  0xFF,  0xFF,  0xFF};
+
+char sample_int64_be_B[] = {0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x03, 
+                            0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFC, 
+                            0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF};
+char sample_int64_le_B[] = {0x03,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00, 
+                            0xFC,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF, 
+                            0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF};
 
 // Sample C is {min, max} value (ex: -2147483648 and 2147483647)
-char sample_int32_be_C[] = {0x80,  0x00,  0x00,  0x00,  0x7F,  0xFF,  0xFF,  0xFF};
-char sample_int32_le_C[] = {0x00,  0x00,  0x00,  0x80,  0xFF,  0xFF,  0xFF,  0x7F};
+char sample_int32_be_C[] = {0x80,  0x00,  0x00,  0x00, 
+                            0x7F,  0xFF,  0xFF,  0xFF};
+char sample_int32_le_C[] = {0x00,  0x00,  0x00,  0x80, 
+                            0xFF,  0xFF,  0xFF,  0x7F};
 
-#define DEFINE_TEST_WITH_EXPECT(name, function, result_type, input, expected) \
-void name(void) {\
+char sample_int64_be_C[] = {0x80,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00, 
+                            0x7F,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF};
+char sample_int64_le_C[] = {0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x80,
+                            0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0x7F};
+
+
+// Macros to avoid too much copy paste.
+// tests will be named test_FUNCTION_GROUP
+// FUNCTION being the name of the function being tested
+// GROUP being the group of input values to use (A, B, C or NULL)
+
+// Define a test checking that "function" returns "expected" of type "result_type" when applied to "input"
+#define DEFINE_TEST_WITH_EXPECT(function, group, result_type, input, expected) \
+void test_ ## function ## _ ## group(void) {\
   UDF_INIT initid;\
   UDF_ARGS args;\
   char error[1];\
@@ -63,8 +101,9 @@ void name(void) {\
   CU_ASSERT_EQUAL(result, expected);\
 }
 
+// Define a test checking that "function" returns NULL for a NULL input
 #define DEFINE_TEST_NULL_ARG(function) \
-void test_##function##_on_null(void) {\
+void test_ ## function ## _NULL(void) {\
   UDF_INIT initid;\
   UDF_ARGS args;\
   char error[1];\
@@ -80,40 +119,51 @@ void test_##function##_on_null(void) {\
   CU_ASSERT_EQUAL(*isNull, 1);\
 }
 
+// Define all tests (including NULL input and both endianness) for an operation (op: sum, max...) and a value "type" (int32, int64, etc).
+// "result_type" is the return type of the UDF. resA, resB and resC are the expected results for each group of test input values.
+#define DEFINE_TESTS(op, type, result_type, resA, resB, resC) \
+DEFINE_TEST_WITH_EXPECT(op ## _ ## type ## _be, A, result_type, sample_ ## type ## _be_A,  resA)\
+DEFINE_TEST_WITH_EXPECT(op ## _ ## type ## _be, B, result_type, sample_ ## type ## _be_B,  resB)\
+DEFINE_TEST_WITH_EXPECT(op ## _ ## type ## _be, C, result_type, sample_ ## type ## _be_C,  resC)\
+\
+DEFINE_TEST_WITH_EXPECT(op ## _ ## type ## _le, A, result_type, sample_ ## type ## _le_A,  resA)\
+DEFINE_TEST_WITH_EXPECT(op ## _ ## type ## _le, B, result_type, sample_ ## type ## _le_B,  resB)\
+DEFINE_TEST_WITH_EXPECT(op ## _ ## type ## _le, C, result_type, sample_ ## type ## _le_C,  resC)\
+\
+DEFINE_TEST_NULL_ARG(op ## _ ## type ## _be)\
+DEFINE_TEST_NULL_ARG(op ## _ ## type ## _le)
 
-DEFINE_TEST_WITH_EXPECT(test_sum_int32_be_A, sum_int32_be, int64_t, sample_int32_be_A,  3)
-DEFINE_TEST_WITH_EXPECT(test_sum_int32_be_B, sum_int32_be, int64_t, sample_int32_be_B, -2)
-DEFINE_TEST_WITH_EXPECT(test_sum_int32_be_C, sum_int32_be, int64_t, sample_int32_be_C, -1)
-
-DEFINE_TEST_WITH_EXPECT(test_sum_int32_le_A, sum_int32_le, int64_t, sample_int32_le_A,  3)
-DEFINE_TEST_WITH_EXPECT(test_sum_int32_le_B, sum_int32_le, int64_t, sample_int32_le_B, -2)
-DEFINE_TEST_WITH_EXPECT(test_sum_int32_le_C, sum_int32_le, int64_t, sample_int32_le_C, -1)
+DEFINE_TESTS(sum, int32, int64_t, 3, -2, -1)
+DEFINE_TESTS(sum, int64, int64_t, 3, -2, -1)
 
 
-DEFINE_TEST_NULL_ARG(sum_int32_be)
-DEFINE_TEST_NULL_ARG(sum_int32_le)
+#define STR(a) #a
+#define DECLARE_TESTS(fct, group) \
+  { STR(fct ## _le), test_ ## fct ## _be_ ## group },\
+  { STR(fct ## _be), test_ ## fct ## _le_ ## group },
+
 
 CU_TestInfo tests_input_A[] = {
-  { "sum_int32_be", test_sum_int32_be_A },
-  { "sum_int32_le", test_sum_int32_le_A },
+  DECLARE_TESTS(sum_int32, A)
+  DECLARE_TESTS(sum_int64, A)
   CU_TEST_INFO_NULL,
 };
 
 CU_TestInfo tests_input_B[] = {
-  { "sum_int32_be", test_sum_int32_be_B },
-  { "sum_int32_le", test_sum_int32_be_B },
+  DECLARE_TESTS(sum_int32, B)
+  DECLARE_TESTS(sum_int64, B)
   CU_TEST_INFO_NULL,
 };
 
 CU_TestInfo tests_input_C[] = {
-  { "sum_int32_be", test_sum_int32_be_C },
-  { "sum_int32_le", test_sum_int32_be_C },
+  DECLARE_TESTS(sum_int32, C)
+  DECLARE_TESTS(sum_int64, C)
   CU_TEST_INFO_NULL,
 };
 
 CU_TestInfo tests_input_NULL[] = {
-  { "sum_int32_be", test_sum_int32_be_on_null },
-  { "sum_int32_le", test_sum_int32_be_on_null },
+  DECLARE_TESTS(sum_int32, NULL)
+  DECLARE_TESTS(sum_int64, NULL)
   CU_TEST_INFO_NULL,
 };
 
@@ -124,7 +174,6 @@ CU_SuiteInfo suites[] = {
   { "Test with NULL input",         NULL, NULL, tests_input_NULL },
   CU_SUITE_INFO_NULL,
 };
-
 
 int main()
 {
