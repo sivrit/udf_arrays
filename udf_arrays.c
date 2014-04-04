@@ -80,19 +80,11 @@ int64_t sum_int32_be(UDF_INIT *initid __attribute__((unused)), UDF_ARGS *args,
     return -1;
   }
   
-  const longlong len = args->lengths[0];
-  
-  if(len % 4 != 0) {
-    strmov(error,"Argument should be an array of ints");
-    return -1;
-  }
-  
-  longlong intLen = len / 4;
-  
+  const u_int32_t len = args->lengths[0];
+  const int intLen = len / 4;
   
   longlong sum = 0;
   
- 
   u_int32_t* data = (u_int32_t*)args->args[0]; 
    for(int i = 0; i<intLen; i+=1) {
     u_int32_t baseValue = data[i];
@@ -103,18 +95,29 @@ int64_t sum_int32_be(UDF_INIT *initid __attribute__((unused)), UDF_ARGS *args,
   return sum;
 }
 
-my_bool sum_int32_be_init(UDF_INIT *initid, UDF_ARGS *args, char *message)
-{
-  if (args->arg_count != 1)
-  {
-    strmov(message,"This function takes 1 argument");
+
+my_bool sum_int32_be_init(UDF_INIT *initid, UDF_ARGS *args, char *message) {
+  if(args->arg_count != 1) {
+    strmov(message, "This function takes 1 argument");
     return 1;
   }
-  if (args->arg_count) {
+  
+  if(args->args[0] != NULL) {
+    const u_int32_t len = args->lengths[0];
+    if(len % 4 != 0) {
+      char error[255];
+      snprintf(error, sizeof(error), "Bad length for an array of int32: %d is not a multiple of %d", len, 4);
+      strmov(message, error);
+      return 1;
+    }
+  }
+  
+  if(args->arg_count) {
     args->arg_type[0]= STRING_RESULT; /* Force argument to a String (a blob actually) */
     args->maybe_null[0]=1;
   }
-    initid->maybe_null=1;
+  
+  initid->maybe_null=1;
     
   return 0;
 }
