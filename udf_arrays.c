@@ -66,6 +66,11 @@ typedef long long longlong;
  * sum_int32_le - Compute the sum of an array of signed 32 bits little endian integers
  * sum_int64_be - Compute the sum of an array of signed 64 bits big endian integers
  * sum_int64_le - Compute the sum of an array of signed 64 bits little endian integers
+ * 
+ * sum_u_int32_be - Compute the sum of an array of unsigned 32 bits big endian integers
+ * sum_u_int32_le - Compute the sum of an array of unsigned 32 bits little endian integers
+ * sum_u_int64_be - Compute the sum of an array of unsigned 64 bits big endian integers
+ * sum_u_int64_le - Compute the sum of an array of unsigned 64 bits little endian integers
  */
 
 /*
@@ -75,13 +80,22 @@ create all functions:
  CREATE FUNCTION sum_int32_le RETURNS INTEGER SONAME "udf_arrays.so";
  CREATE FUNCTION sum_int64_be RETURNS INTEGER SONAME "udf_arrays.so";
  CREATE FUNCTION sum_int64_le RETURNS INTEGER SONAME "udf_arrays.so";
+
+ CREATE FUNCTION sum_u_int32_be RETURNS INTEGER SONAME "udf_arrays.so";
+ CREATE FUNCTION sum_u_int32_le RETURNS INTEGER SONAME "udf_arrays.so";
+ CREATE FUNCTION sum_u_int64_be RETURNS INTEGER SONAME "udf_arrays.so";
+ CREATE FUNCTION sum_u_int64_le RETURNS INTEGER SONAME "udf_arrays.so";
  
 drop all functions:
  DROP FUNCTION sum_int32_be;
  DROP FUNCTION sum_int32_le;
  DROP FUNCTION sum_int64_be;
  DROP FUNCTION sum_int64_le;
- 
+
+ DROP FUNCTION sum_u_int32_be;
+ DROP FUNCTION sum_u_int32_le;
+ DROP FUNCTION sum_u_int64_be;
+ DROP FUNCTION sum_u_int64_le;
  */
 
 
@@ -145,3 +159,9 @@ DEFINE_ARRAY_FCT(sum_int32_le, int64_t, int32_t, le32toh, sum_macro)
 
 DEFINE_ARRAY_FCT(sum_int64_be, int64_t, int64_t, be64toh, sum_macro)
 DEFINE_ARRAY_FCT(sum_int64_le, int64_t, int64_t, le64toh, sum_macro)
+
+DEFINE_ARRAY_FCT(sum_u_int32_be, int64_t, u_int32_t, be32toh, sum_macro)
+DEFINE_ARRAY_FCT(sum_u_int32_le, int64_t, u_int32_t, le32toh, sum_macro)
+
+DEFINE_ARRAY_FCT(sum_u_int64_be, int64_t, u_int64_t, be64toh, sum_macro)
+DEFINE_ARRAY_FCT(sum_u_int64_le, u_int64_t, u_int64_t, le64toh, sum_macro)

@@ -32,6 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include "CUnit/Basic.h"
 
+
 // input data is named as "sample_TYPE_ENDIANNESS_GROUP"
 // group being A, B or C
 
@@ -50,6 +51,13 @@ char sample_int64_le_A[] = {0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x0
                             0x01,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00, 
                             0x02,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00};
 
+// Values are positive and small enough: unsigned==signed
+#define sample_u_int32_be_A sample_int32_be_A
+#define sample_u_int32_le_A sample_int32_le_A
+
+#define sample_u_int64_be_A sample_int64_be_A
+#define sample_u_int64_le_A sample_int64_le_A
+
 // Sample B is { 3, -4, -1 }, or { 3, 4, 1 } for unsigned data
 char sample_int32_be_B[] = {0x00,  0x00,  0x00,  0x03,
                             0xFF,  0xFF,  0xFF,  0xFC, 
@@ -65,6 +73,21 @@ char sample_int64_le_B[] = {0x03,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x0
                             0xFC,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF, 
                             0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF};
 
+char sample_u_int32_be_B[] = {0x00,  0x00,  0x00,  0x03,
+                              0x00,  0x00,  0x00,  0x04, 
+                              0x00,  0x00,  0x00,  0x01};
+char sample_u_int32_le_B[] = {0x03,  0x00,  0x00,  0x00,
+                              0x04,  0x00,  0x00,  0x00, 
+                              0x01,  0x00,  0x00,  0x00};
+
+char sample_u_int64_be_B[] = {0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x03, 
+                              0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x04, 
+                              0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x01};
+char sample_u_int64_le_B[] = {0x03,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00, 
+                              0x04,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00, 
+                              0x01,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00};
+
+
 // Sample C is {min, max} value (ex: -2147483648 and 2147483647)
 char sample_int32_be_C[] = {0x80,  0x00,  0x00,  0x00, 
                             0x7F,  0xFF,  0xFF,  0xFF};
@@ -75,6 +98,14 @@ char sample_int64_be_C[] = {0x80,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x0
                             0x7F,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF};
 char sample_int64_le_C[] = {0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x80,
                             0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0x7F};
+
+char sample_u_int32_be_C[] = {0x00,  0x00,  0x00,  0x00, 
+                              0xFF,  0xFF,  0xFF,  0xFF};
+#define sample_u_int32_le_C sample_u_int32_be_C
+
+char sample_u_int64_be_C[] = {0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00, 
+                              0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF};
+#define sample_u_int64_le_C sample_u_int64_be_C
 
 
 // Macros to avoid too much copy paste.
@@ -136,6 +167,11 @@ DEFINE_TEST_NULL_ARG(op ## _ ## type ## _le)
 DEFINE_TESTS(sum, int32, int64_t, 3, -2, -1)
 DEFINE_TESTS(sum, int64, int64_t, 3, -2, -1)
 
+DEFINE_TESTS(sum, u_int32, u_int64_t, 3, 8, 4294967295)
+DEFINE_TESTS(sum, u_int64, u_int64_t, 3, 8, 18446744073709551615UL)
+
+
+//4294967295
 
 #define STR(a) #a
 #define DECLARE_TESTS(fct, group) \
@@ -146,24 +182,32 @@ DEFINE_TESTS(sum, int64, int64_t, 3, -2, -1)
 CU_TestInfo tests_input_A[] = {
   DECLARE_TESTS(sum_int32, A)
   DECLARE_TESTS(sum_int64, A)
+  DECLARE_TESTS(sum_u_int32, A)
+  DECLARE_TESTS(sum_u_int64, A)
   CU_TEST_INFO_NULL,
 };
 
 CU_TestInfo tests_input_B[] = {
   DECLARE_TESTS(sum_int32, B)
   DECLARE_TESTS(sum_int64, B)
+  DECLARE_TESTS(sum_u_int32, B)
+  DECLARE_TESTS(sum_u_int64, B)
   CU_TEST_INFO_NULL,
 };
 
 CU_TestInfo tests_input_C[] = {
   DECLARE_TESTS(sum_int32, C)
   DECLARE_TESTS(sum_int64, C)
+  DECLARE_TESTS(sum_u_int32, C)
+  DECLARE_TESTS(sum_u_int64, C)
   CU_TEST_INFO_NULL,
 };
 
 CU_TestInfo tests_input_NULL[] = {
   DECLARE_TESTS(sum_int32, NULL)
   DECLARE_TESTS(sum_int64, NULL)
+  DECLARE_TESTS(sum_u_int32, NULL)
+  DECLARE_TESTS(sum_u_int64, NULL)
   CU_TEST_INFO_NULL,
 };
 
