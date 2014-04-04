@@ -35,13 +35,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Sample A is { 0, 1, 2 }
 char sample_int32_be_A[] = {0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x01,  0x00,  0x00,  0x00,  0x02};
+char sample_int32_le_A[] = {0x00,  0x00,  0x00,  0x00,  0x01,  0x00,  0x00,  0x00,  0x02,  0x00,  0x00,  0x00};
 
 // Sample B is { 3, -4, -1 }
 char sample_int32_be_B[] = {0x00,  0x00,  0x00,  0x03,  0xFF,  0xFF,  0xFF,  0xFC,  0xFF,  0xFF,  0xFF,  0xFF};
-  
+char sample_int32_le_B[] = {0x03,  0x00,  0x00,  0x00,  0xFC,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF};
+
 // Sample C is {min, max} value (ex: -2147483648 and 2147483647)
 char sample_int32_be_C[] = {0x80,  0x00,  0x00,  0x00,  0x7F,  0xFF,  0xFF,  0xFF};
-
+char sample_int32_le_C[] = {0x00,  0x00,  0x00,  0x80,  0xFF,  0xFF,  0xFF,  0x7F};
 
 #define DEFINE_TEST_WITH_EXPECT(name, function, result_type, input, expected) \
 void name(void) {\
@@ -61,11 +63,6 @@ void name(void) {\
   CU_ASSERT_EQUAL(result, expected);\
 }
 
-DEFINE_TEST_WITH_EXPECT(test_sum_int32_be_A, sum_int32_be, int64_t, sample_int32_be_A,  3)
-DEFINE_TEST_WITH_EXPECT(test_sum_int32_be_B, sum_int32_be, int64_t, sample_int32_be_B, -2)
-DEFINE_TEST_WITH_EXPECT(test_sum_int32_be_C, sum_int32_be, int64_t, sample_int32_be_C, -1)
-
-
 #define DEFINE_TEST_NULL_ARG(function) \
 void test_##function##_on_null(void) {\
   UDF_INIT initid;\
@@ -83,26 +80,40 @@ void test_##function##_on_null(void) {\
   CU_ASSERT_EQUAL(*isNull, 1);\
 }
 
-DEFINE_TEST_NULL_ARG(sum_int32_be)
 
+DEFINE_TEST_WITH_EXPECT(test_sum_int32_be_A, sum_int32_be, int64_t, sample_int32_be_A,  3)
+DEFINE_TEST_WITH_EXPECT(test_sum_int32_be_B, sum_int32_be, int64_t, sample_int32_be_B, -2)
+DEFINE_TEST_WITH_EXPECT(test_sum_int32_be_C, sum_int32_be, int64_t, sample_int32_be_C, -1)
+
+DEFINE_TEST_WITH_EXPECT(test_sum_int32_le_A, sum_int32_le, int64_t, sample_int32_le_A,  3)
+DEFINE_TEST_WITH_EXPECT(test_sum_int32_le_B, sum_int32_le, int64_t, sample_int32_le_B, -2)
+DEFINE_TEST_WITH_EXPECT(test_sum_int32_le_C, sum_int32_le, int64_t, sample_int32_le_C, -1)
+
+
+DEFINE_TEST_NULL_ARG(sum_int32_be)
+DEFINE_TEST_NULL_ARG(sum_int32_le)
 
 CU_TestInfo tests_input_A[] = {
-  { "test of test_sum_int32_be_A", test_sum_int32_be_A },
+  { "sum_int32_be", test_sum_int32_be_A },
+  { "sum_int32_le", test_sum_int32_le_A },
   CU_TEST_INFO_NULL,
 };
 
 CU_TestInfo tests_input_B[] = {
-  { "test of test_sum_int32_be_B", test_sum_int32_be_B },
+  { "sum_int32_be", test_sum_int32_be_B },
+  { "sum_int32_le", test_sum_int32_be_B },
   CU_TEST_INFO_NULL,
 };
 
 CU_TestInfo tests_input_C[] = {
-  { "test of test_sum_int32_be_C", test_sum_int32_be_C },
+  { "sum_int32_be", test_sum_int32_be_C },
+  { "sum_int32_le", test_sum_int32_be_C },
   CU_TEST_INFO_NULL,
 };
 
 CU_TestInfo tests_input_NULL[] = {
-  { "test of test_sum_int32_be_on_null", test_sum_int32_be_on_null },
+  { "sum_int32_be", test_sum_int32_be_on_null },
+  { "sum_int32_le", test_sum_int32_be_on_null },
   CU_TEST_INFO_NULL,
 };
 
