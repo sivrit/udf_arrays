@@ -111,7 +111,7 @@ char sample_u_int64_be_C[] = {0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0
 // Macros to avoid too much copy paste.
 // tests will be named test_FUNCTION_GROUP
 // FUNCTION being the name of the function being tested
-// GROUP being the group of input values to use (A, B, C or NULL)
+// GROUP being the group of input values to use (A, B, C or null)
 
 // Define a test checking that "function" returns "expected" of type "result_type" when applied to "input"
 #define DEFINE_TEST_WITH_EXPECT(function, group, result_type, input, expected) \
@@ -134,7 +134,7 @@ void test_ ## function ## _ ## group(void) {\
 
 // Define a test checking that "function" returns NULL for a NULL input
 #define DEFINE_TEST_NULL_ARG(function) \
-void test_ ## function ## _NULL(void) {\
+void test_ ## function ## _null(void) {\
   UDF_INIT initid;\
   UDF_ARGS args;\
   char error[1];\
@@ -166,48 +166,70 @@ DEFINE_TEST_NULL_ARG(op ## _ ## type ## _le)
 
 DEFINE_TESTS(sum, int32, int64_t, 3, -2, -1)
 DEFINE_TESTS(sum, int64, int64_t, 3, -2, -1)
-
 DEFINE_TESTS(sum, u_int32, u_int64_t, 3, 8, 4294967295)
 DEFINE_TESTS(sum, u_int64, u_int64_t, 3, 8, 18446744073709551615UL)
 
+DEFINE_TESTS(min, int32, int64_t, 0, -4, -2147483648)
+DEFINE_TESTS(min, int64, int64_t, 0, -4, -(9223372036854775808UL))
+DEFINE_TESTS(min, u_int32, u_int64_t, 0, 1, 0)
+DEFINE_TESTS(min, u_int64, u_int64_t, 0, 1, 0)
 
-//4294967295
+DEFINE_TESTS(max, int32, int64_t, 2, 3, 2147483647)
+DEFINE_TESTS(max, int64, int64_t, 2, 3, 9223372036854775807L)
+DEFINE_TESTS(max, u_int32, u_int64_t, 2, 4, 4294967295)
+DEFINE_TESTS(max, u_int64, u_int64_t, 2, 4, 18446744073709551615UL)
 
 #define STR(a) #a
-#define DECLARE_TESTS(fct, group) \
+#define DECLARE_TESTS_BE_LE(fct, group) \
   { STR(fct ## _le), test_ ## fct ## _be_ ## group },\
   { STR(fct ## _be), test_ ## fct ## _le_ ## group },
+  
 
+#define DECLARE_TESTS(op, group) \
+  DECLARE_TESTS_BE_LE(op ## _int32, group)\
+  DECLARE_TESTS_BE_LE(op ## _int64, group)\
+  DECLARE_TESTS_BE_LE(op ## _u_int32, group)\
+  DECLARE_TESTS_BE_LE(op ## _u_int64, group)
+  
 
 CU_TestInfo tests_input_A[] = {
-  DECLARE_TESTS(sum_int32, A)
-  DECLARE_TESTS(sum_int64, A)
-  DECLARE_TESTS(sum_u_int32, A)
-  DECLARE_TESTS(sum_u_int64, A)
+  DECLARE_TESTS(sum, A)
+  DECLARE_TESTS(min, A)
+  DECLARE_TESTS(max, A)
   CU_TEST_INFO_NULL,
 };
 
 CU_TestInfo tests_input_B[] = {
-  DECLARE_TESTS(sum_int32, B)
-  DECLARE_TESTS(sum_int64, B)
-  DECLARE_TESTS(sum_u_int32, B)
-  DECLARE_TESTS(sum_u_int64, B)
+  DECLARE_TESTS(sum, B)
+  DECLARE_TESTS(min, B)
+  DECLARE_TESTS(max, B)
   CU_TEST_INFO_NULL,
 };
 
 CU_TestInfo tests_input_C[] = {
-  DECLARE_TESTS(sum_int32, C)
-  DECLARE_TESTS(sum_int64, C)
-  DECLARE_TESTS(sum_u_int32, C)
-  DECLARE_TESTS(sum_u_int64, C)
+  DECLARE_TESTS(sum, C)
+  DECLARE_TESTS(min, C)
+  DECLARE_TESTS(max, C)
   CU_TEST_INFO_NULL,
 };
 
-CU_TestInfo tests_input_NULL[] = {
-  DECLARE_TESTS(sum_int32, NULL)
-  DECLARE_TESTS(sum_int64, NULL)
-  DECLARE_TESTS(sum_u_int32, NULL)
-  DECLARE_TESTS(sum_u_int64, NULL)
+void testExtr(void){
+    CU_ASSERT_EQUAL(INT_MAX, 2147483647);
+    CU_ASSERT_EQUAL(UINT_MAX, 4294967295);
+    CU_ASSERT_EQUAL(LONG_MAX, 9223372036854775807L);
+    CU_ASSERT_EQUAL(ULONG_MAX, 18446744073709551615UL);
+    CU_ASSERT_EQUAL(LONG_LONG_MAX, 9223372036854775807L);
+    CU_ASSERT_EQUAL(ULONG_LONG_MAX, 18446744073709551615UL);
+    
+    CU_ASSERT_EQUAL(INT_MIN, -2147483648);
+    CU_ASSERT_EQUAL(LONG_MIN, -(9223372036854775808UL));
+    CU_ASSERT_EQUAL(LONG_LONG_MIN, -(9223372036854775808UL));
+}
+
+CU_TestInfo tests_input_null[] = {
+  DECLARE_TESTS(sum, null)
+  DECLARE_TESTS(min, null)
+  DECLARE_TESTS(max, null)
   CU_TEST_INFO_NULL,
 };
 
@@ -215,12 +237,11 @@ CU_SuiteInfo suites[] = {
   { "Test on input { 0,  1,  2 }",  NULL, NULL, tests_input_A },
   { "Test on input { 3, -4, -1 }",  NULL, NULL, tests_input_B },
   { "Test on input { MIN, MAX }",   NULL, NULL, tests_input_C },
-  { "Test with NULL input",         NULL, NULL, tests_input_NULL },
+  { "Test with NULL input",         NULL, NULL, tests_input_null },
   CU_SUITE_INFO_NULL,
 };
 
-int main()
-{
+int main() {
    /* initialize the CUnit test registry */
    if (CU_initialize_registry() != CUE_SUCCESS)
       return CU_get_error();
@@ -235,5 +256,6 @@ int main()
    CU_basic_set_mode(CU_BRM_VERBOSE);
    CU_basic_run_tests();
    CU_cleanup_registry();
+
    return CU_get_error();
 }

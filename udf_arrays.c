@@ -60,7 +60,6 @@ typedef long long longlong;
 #include <mysql.h>
 #include <endian.h>
 
-
 /*
  * sum_int32_be - Compute the sum of an array of signed 32 bits big endian integers
  * sum_int32_le - Compute the sum of an array of signed 32 bits little endian integers
@@ -71,6 +70,29 @@ typedef long long longlong;
  * sum_u_int32_le - Compute the sum of an array of unsigned 32 bits little endian integers
  * sum_u_int64_be - Compute the sum of an array of unsigned 64 bits big endian integers
  * sum_u_int64_le - Compute the sum of an array of unsigned 64 bits little endian integers
+ * 
+ * 
+ * min_int32_be - Compute the minimum of an array of signed 32 bits big endian integers
+ * min_int32_le - Compute the minimum of an array of signed 32 bits little endian integers
+ * min_int64_be - Compute the minimum of an array of signed 64 bits big endian integers
+ * min_int64_le - Compute the minimum of an array of signed 64 bits little endian integers
+ * 
+ * min_u_int32_be - Compute the minimum of an array of unsigned 32 bits big endian integers
+ * min_u_int32_le - Compute the minimum of an array of unsigned 32 bits little endian integers
+ * min_u_int64_be - Compute the minimum of an array of unsigned 64 bits big endian integers
+ * min_u_int64_le - Compute the minimum of an array of unsigned 64 bits little endian integers
+ * 
+ * 
+ * max_int32_be - Compute the maximum of an array of signed 32 bits big endian integers
+ * max_int32_le - Compute the maximum of an array of signed 32 bits little endian integers
+ * max_int64_be - Compute the maximum of an array of signed 64 bits big endian integers
+ * max_int64_le - Compute the maximum of an array of signed 64 bits little endian integers
+ * 
+ * max_u_int32_be - Compute the maximum of an array of unsigned 32 bits big endian integers
+ * max_u_int32_le - Compute the maximum of an array of unsigned 32 bits little endian integers
+ * max_u_int64_be - Compute the maximum of an array of unsigned 64 bits big endian integers
+ * max_u_int64_le - Compute the maximum of an array of unsigned 64 bits little endian integers
+ * 
  */
 
 /*
@@ -80,26 +102,64 @@ create all functions:
  CREATE FUNCTION sum_int32_le RETURNS INTEGER SONAME "udf_arrays.so";
  CREATE FUNCTION sum_int64_be RETURNS INTEGER SONAME "udf_arrays.so";
  CREATE FUNCTION sum_int64_le RETURNS INTEGER SONAME "udf_arrays.so";
-
  CREATE FUNCTION sum_u_int32_be RETURNS INTEGER SONAME "udf_arrays.so";
  CREATE FUNCTION sum_u_int32_le RETURNS INTEGER SONAME "udf_arrays.so";
  CREATE FUNCTION sum_u_int64_be RETURNS INTEGER SONAME "udf_arrays.so";
  CREATE FUNCTION sum_u_int64_le RETURNS INTEGER SONAME "udf_arrays.so";
- 
+
+
+ CREATE FUNCTION min_int32_be RETURNS INTEGER SONAME "udf_arrays.so";
+ CREATE FUNCTION min_int32_le RETURNS INTEGER SONAME "udf_arrays.so";
+ CREATE FUNCTION min_int64_be RETURNS INTEGER SONAME "udf_arrays.so";
+ CREATE FUNCTION min_int64_le RETURNS INTEGER SONAME "udf_arrays.so";
+ CREATE FUNCTION min_u_int32_be RETURNS INTEGER SONAME "udf_arrays.so";
+ CREATE FUNCTION min_u_int32_le RETURNS INTEGER SONAME "udf_arrays.so";
+ CREATE FUNCTION min_u_int64_be RETURNS INTEGER SONAME "udf_arrays.so";
+ CREATE FUNCTION min_u_int64_le RETURNS INTEGER SONAME "udf_arrays.so";
+
+ CREATE FUNCTION max_int32_be RETURNS INTEGER SONAME "udf_arrays.so";
+ CREATE FUNCTION max_int32_le RETURNS INTEGER SONAME "udf_arrays.so";
+ CREATE FUNCTION max_int64_be RETURNS INTEGER SONAME "udf_arrays.so";
+ CREATE FUNCTION max_int64_le RETURNS INTEGER SONAME "udf_arrays.so";
+ CREATE FUNCTION max_u_int32_be RETURNS INTEGER SONAME "udf_arrays.so";
+ CREATE FUNCTION max_u_int32_le RETURNS INTEGER SONAME "udf_arrays.so";
+ CREATE FUNCTION max_u_int64_be RETURNS INTEGER SONAME "udf_arrays.so";
+ CREATE FUNCTION max_u_int64_le RETURNS INTEGER SONAME "udf_arrays.so";
+
 drop all functions:
  DROP FUNCTION sum_int32_be;
  DROP FUNCTION sum_int32_le;
  DROP FUNCTION sum_int64_be;
  DROP FUNCTION sum_int64_le;
-
  DROP FUNCTION sum_u_int32_be;
  DROP FUNCTION sum_u_int32_le;
  DROP FUNCTION sum_u_int64_be;
  DROP FUNCTION sum_u_int64_le;
+
+
+ DROP FUNCTION min_int32_be;
+ DROP FUNCTION min_int32_le;
+ DROP FUNCTION min_int64_be;
+ DROP FUNCTION min_int64_le;
+ DROP FUNCTION min_u_int32_be;
+ DROP FUNCTION min_u_int32_le;
+ DROP FUNCTION min_u_int64_be;
+ DROP FUNCTION min_u_int64_le;
+
+
+ DROP FUNCTION max_int32_be;
+ DROP FUNCTION max_int32_le;
+ DROP FUNCTION max_int64_be;
+ DROP FUNCTION max_int64_le;
+ DROP FUNCTION max_u_int32_be;
+ DROP FUNCTION max_u_int32_le;
+ DROP FUNCTION max_u_int64_be;
+ DROP FUNCTION max_u_int64_le;
+
  */
 
 
-#define DEFINE_ARRAY_FCT(name, return_type, array_type, convertion_fct, aggregation_fct) \
+#define DEFINE_ARRAY_FCT(name, return_type, array_type, convertion_fct, aggregation_fct, initial_value) \
 my_bool name##_init(UDF_INIT *initid, UDF_ARGS *args, char *message) {\
   if(args->arg_count != 1) {\
     strmov(message, "This function takes 1 argument");\
@@ -140,7 +200,7 @@ return_type name(UDF_INIT *initid __attribute__((unused)), UDF_ARGS *args,\
   const u_int32_t len = args->lengths[0];\
   const int intLen = len / sizeof(array_type);\
   \
-  return_type result = 0;\
+  return_type result = initial_value;\
   \
   array_type* data = (array_type*)args->args[0]; \
    for(int i = 0; i<intLen; i+=1) {\
@@ -153,15 +213,44 @@ return_type name(UDF_INIT *initid __attribute__((unused)), UDF_ARGS *args,\
 }
 
 #define sum_macro(a, b) ((a)+(b))
+#define min_macro(a, b) ((a)>(b)?(b):(a))
+#define max_macro(a, b) ((a)>(b)?(a):(b))
 
-DEFINE_ARRAY_FCT(sum_int32_be, int64_t, int32_t, be32toh, sum_macro)
-DEFINE_ARRAY_FCT(sum_int32_le, int64_t, int32_t, le32toh, sum_macro)
+// sums
+DEFINE_ARRAY_FCT(sum_int32_be, int64_t, int32_t, be32toh, sum_macro, 0)
+DEFINE_ARRAY_FCT(sum_int32_le, int64_t, int32_t, le32toh, sum_macro, 0)
 
-DEFINE_ARRAY_FCT(sum_int64_be, int64_t, int64_t, be64toh, sum_macro)
-DEFINE_ARRAY_FCT(sum_int64_le, int64_t, int64_t, le64toh, sum_macro)
+DEFINE_ARRAY_FCT(sum_int64_be, int64_t, int64_t, be64toh, sum_macro, 0)
+DEFINE_ARRAY_FCT(sum_int64_le, int64_t, int64_t, le64toh, sum_macro, 0)
 
-DEFINE_ARRAY_FCT(sum_u_int32_be, int64_t, u_int32_t, be32toh, sum_macro)
-DEFINE_ARRAY_FCT(sum_u_int32_le, int64_t, u_int32_t, le32toh, sum_macro)
+DEFINE_ARRAY_FCT(sum_u_int32_be, int64_t, u_int32_t, be32toh, sum_macro, 0)
+DEFINE_ARRAY_FCT(sum_u_int32_le, int64_t, u_int32_t, le32toh, sum_macro, 0)
 
-DEFINE_ARRAY_FCT(sum_u_int64_be, int64_t, u_int64_t, be64toh, sum_macro)
-DEFINE_ARRAY_FCT(sum_u_int64_le, u_int64_t, u_int64_t, le64toh, sum_macro)
+DEFINE_ARRAY_FCT(sum_u_int64_be,   int64_t, u_int64_t, be64toh, sum_macro, 0)
+DEFINE_ARRAY_FCT(sum_u_int64_le, u_int64_t, u_int64_t, le64toh, sum_macro, 0)
+
+// mins
+DEFINE_ARRAY_FCT(min_int32_be, int64_t, int32_t, be32toh, min_macro, INT_MAX)
+DEFINE_ARRAY_FCT(min_int32_le, int64_t, int32_t, le32toh, min_macro, INT_MAX)
+
+DEFINE_ARRAY_FCT(min_int64_be, int64_t, int64_t, be64toh, min_macro, LONG_LONG_MAX)
+DEFINE_ARRAY_FCT(min_int64_le, int64_t, int64_t, le64toh, min_macro, LONG_LONG_MAX)
+
+DEFINE_ARRAY_FCT(min_u_int32_be, int64_t, u_int32_t, be32toh, min_macro, UINT_MAX)
+DEFINE_ARRAY_FCT(min_u_int32_le, int64_t, u_int32_t, le32toh, min_macro, UINT_MAX)
+
+DEFINE_ARRAY_FCT(min_u_int64_be, u_int64_t, u_int64_t, be64toh, min_macro, ULONG_LONG_MAX)
+DEFINE_ARRAY_FCT(min_u_int64_le, u_int64_t, u_int64_t, le64toh, min_macro, ULONG_LONG_MAX)
+
+// maxes
+DEFINE_ARRAY_FCT(max_int32_be, int64_t, int32_t, be32toh, max_macro, INT_MIN)
+DEFINE_ARRAY_FCT(max_int32_le, int64_t, int32_t, le32toh, max_macro, INT_MIN)
+
+DEFINE_ARRAY_FCT(max_int64_be, int64_t, int64_t, be64toh, max_macro, LONG_LONG_MIN)
+DEFINE_ARRAY_FCT(max_int64_le, int64_t, int64_t, le64toh, max_macro, LONG_LONG_MIN)
+
+DEFINE_ARRAY_FCT(max_u_int32_be, int64_t, u_int32_t, be32toh, max_macro, 0)
+DEFINE_ARRAY_FCT(max_u_int32_le, int64_t, u_int32_t, le32toh, max_macro, 0)
+
+DEFINE_ARRAY_FCT(max_u_int64_be, u_int64_t, u_int64_t, be64toh, max_macro, 0)
+DEFINE_ARRAY_FCT(max_u_int64_le, u_int64_t, u_int64_t, le64toh, max_macro, 0)
