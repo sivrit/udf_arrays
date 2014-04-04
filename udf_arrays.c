@@ -119,4 +119,6 @@ my_bool sum_int32_be_init(UDF_INIT *initid, UDF_ARGS *args, char *message)
   return 0;
 }
 
-
+// Mandatory. Without this, mysql does not see our function.
+void sum_int32_be_deinit(UDF_INIT *initid) {
+}
