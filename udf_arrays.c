@@ -4,7 +4,6 @@
 ** TODO doc
 */
 
-// TODO clean
 #ifdef STANDARD
 /* STANDARD is defined, don't use any mysql functions */
 #include <stdlib.h>
@@ -29,30 +28,33 @@ typedef long long longlong;
 #define bzero(a,b) memset(a,0,b)
 #endif
 #endif
-#include <mysql.h>
-#include <ctype.h>
 
+
+
+#include <mysql.h>
 #include <endian.h>
 
 
 /****************************************************************************
-** My Sum - Big Endian
+** sum_int32_be - Compute the sum of an array of signed 32 bits big endian integers
 **
-** CREATE FUNCTION sum_ints RETURNS INTEGER SONAME "udf_arrays.so";
-** DROP FUNCTION sum_ints;
+** CREATE FUNCTION sum_int32_be RETURNS INTEGER SONAME "udf_arrays.so";
+** DROP FUNCTION sum_int32_be;
 **
 ****************************************************************************/
 
-int64_t sum_ints(UDF_INIT *initid __attribute__((unused)), UDF_ARGS *args,
-                  char *is_null,
-                  char *error)
-{
+
+/**
+ * 
+ */
+int64_t sum_int32_be(UDF_INIT *initid __attribute__((unused)), UDF_ARGS *args,
+                  char *is_null, char *error) {
   if(args->args[0] == NULL) {
     *is_null=1;
     return -1;
   }
   
-  longlong len = args->lengths[0];
+  const longlong len = args->lengths[0];
   
   if(len % 4 != 0) {
     strmov(error,"Argument should be an array of ints");
@@ -75,7 +77,7 @@ int64_t sum_ints(UDF_INIT *initid __attribute__((unused)), UDF_ARGS *args,
   return sum;
 }
 
-my_bool sum_ints_init(UDF_INIT *initid, UDF_ARGS *args, char *message)
+my_bool sum_int32_be_init(UDF_INIT *initid, UDF_ARGS *args, char *message)
 {
   if (args->arg_count != 1)
   {
@@ -83,7 +85,7 @@ my_bool sum_ints_init(UDF_INIT *initid, UDF_ARGS *args, char *message)
     return 1;
   }
   if (args->arg_count) {
-    args->arg_type[0]= STRING_RESULT; /* Force argument to int */
+    args->arg_type[0]= STRING_RESULT; /* Force argument to a String (a blob actually) */
     args->maybe_null[0]=1;
   }
     initid->maybe_null=1;
