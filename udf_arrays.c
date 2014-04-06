@@ -27,40 +27,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /*
-** TODO doc
-*/
-
-#ifdef STANDARD
-/* STANDARD is defined, don't use any mysql functions */
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#ifdef __WIN__
-typedef unsigned __int64 ulonglong;	/* Microsofts 64 bit types */
-typedef __int64 longlong;
-#else
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-#endif /*__WIN__*/
-#else
-#include <my_global.h>
-#include <my_sys.h>
-#if defined(MYSQL_SERVER)
-#include <m_string.h>		/* To get strmov() */
-#else
-/* when compiled as standalone */
-#include <string.h>
-#define strmov(a,b) stpcpy(a,b)
-#define bzero(a,b) memset(a,0,b)
-#endif
-#endif
-
-
-
-#include <mysql.h>
-#include <endian.h>
-
-/*
  * sum_int32_be - Compute the sum of an array of signed 32 bits big endian integers
  * sum_int32_le - Compute the sum of an array of signed 32 bits little endian integers
  * sum_int64_be - Compute the sum of an array of signed 64 bits big endian integers
@@ -110,95 +76,42 @@ typedef long long longlong;
  * 
  */
 
-/*
+#ifdef STANDARD
+/* STANDARD is defined, don't use any mysql functions */
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#ifdef __WIN__
+typedef unsigned __int64 ulonglong;	/* Microsofts 64 bit types */
+typedef __int64 longlong;
+#else
+typedef unsigned long long ulonglong;
+typedef long long longlong;
+#endif /*__WIN__*/
+#else
+#include <my_global.h>
+#include <my_sys.h>
+#if defined(MYSQL_SERVER)
+#include <m_string.h>		/* To get strmov() */
+#else
+/* when compiled as standalone */
+#include <string.h>
+#define strmov(a,b) stpcpy(a,b)
+#define bzero(a,b) memset(a,0,b)
+#endif
+#endif
 
-create all functions:
- CREATE FUNCTION sum_int32_be RETURNS INTEGER SONAME "libudf_arrays.so";
- CREATE FUNCTION sum_int32_le RETURNS INTEGER SONAME "libudf_arrays.so";
- CREATE FUNCTION sum_int64_be RETURNS INTEGER SONAME "libudf_arrays.so";
- CREATE FUNCTION sum_int64_le RETURNS INTEGER SONAME "libudf_arrays.so";
- CREATE FUNCTION sum_u_int32_be RETURNS INTEGER SONAME "libudf_arrays.so";
- CREATE FUNCTION sum_u_int32_le RETURNS INTEGER SONAME "libudf_arrays.so";
- CREATE FUNCTION sum_u_int64_be RETURNS INTEGER SONAME "libudf_arrays.so";
- CREATE FUNCTION sum_u_int64_le RETURNS INTEGER SONAME "libudf_arrays.so";
- CREATE FUNCTION sum_float_be RETURNS REAL SONAME "libudf_arrays.so";
- CREATE FUNCTION sum_float_le RETURNS REAL SONAME "libudf_arrays.so";
- CREATE FUNCTION sum_double_be RETURNS REAL SONAME "libudf_arrays.so";
- CREATE FUNCTION sum_double_le RETURNS REAL SONAME "libudf_arrays.so";
-
- CREATE FUNCTION min_int32_be RETURNS INTEGER SONAME "libudf_arrays.so";
- CREATE FUNCTION min_int32_le RETURNS INTEGER SONAME "libudf_arrays.so";
- CREATE FUNCTION min_int64_be RETURNS INTEGER SONAME "libudf_arrays.so";
- CREATE FUNCTION min_int64_le RETURNS INTEGER SONAME "libudf_arrays.so";
- CREATE FUNCTION min_u_int32_be RETURNS INTEGER SONAME "libudf_arrays.so";
- CREATE FUNCTION min_u_int32_le RETURNS INTEGER SONAME "libudf_arrays.so";
- CREATE FUNCTION min_u_int64_be RETURNS INTEGER SONAME "libudf_arrays.so";
- CREATE FUNCTION min_u_int64_le RETURNS INTEGER SONAME "libudf_arrays.so";
- CREATE FUNCTION min_float_be RETURNS REAL SONAME "libudf_arrays.so";
- CREATE FUNCTION min_float_le RETURNS REAL SONAME "libudf_arrays.so";
- CREATE FUNCTION min_double_be RETURNS REAL SONAME "libudf_arrays.so";
- CREATE FUNCTION min_double_le RETURNS REAL SONAME "libudf_arrays.so";
- 
- 
- CREATE FUNCTION max_int32_be RETURNS INTEGER SONAME "libudf_arrays.so";
- CREATE FUNCTION max_int32_le RETURNS INTEGER SONAME "libudf_arrays.so";
- CREATE FUNCTION max_int64_be RETURNS INTEGER SONAME "libudf_arrays.so";
- CREATE FUNCTION max_int64_le RETURNS INTEGER SONAME "libudf_arrays.so";
- CREATE FUNCTION max_u_int32_be RETURNS INTEGER SONAME "libudf_arrays.so";
- CREATE FUNCTION max_u_int32_le RETURNS INTEGER SONAME "libudf_arrays.so";
- CREATE FUNCTION max_u_int64_be RETURNS INTEGER SONAME "libudf_arrays.so";
- CREATE FUNCTION max_u_int64_le RETURNS INTEGER SONAME "libudf_arrays.so";
- CREATE FUNCTION max_float_be RETURNS REAL SONAME "libudf_arrays.so";
- CREATE FUNCTION max_float_le RETURNS REAL SONAME "libudf_arrays.so";
- CREATE FUNCTION max_double_be RETURNS REAL SONAME "libudf_arrays.so";
- CREATE FUNCTION max_double_le RETURNS REAL SONAME "libudf_arrays.so";
- 
- 
-drop all functions:
- DROP FUNCTION sum_int32_be;
- DROP FUNCTION sum_int32_le;
- DROP FUNCTION sum_int64_be;
- DROP FUNCTION sum_int64_le;
- DROP FUNCTION sum_u_int32_be;
- DROP FUNCTION sum_u_int32_le;
- DROP FUNCTION sum_u_int64_be;
- DROP FUNCTION sum_u_int64_le;
- DROP FUNCTION sum_float_be;
- DROP FUNCTION sum_float_le;
- DROP FUNCTION sum_double_be;
- DROP FUNCTION sum_double_le;
- 
-
- DROP FUNCTION min_int32_be;
- DROP FUNCTION min_int32_le;
- DROP FUNCTION min_int64_be;
- DROP FUNCTION min_int64_le;
- DROP FUNCTION min_u_int32_be;
- DROP FUNCTION min_u_int32_le;
- DROP FUNCTION min_u_int64_be;
- DROP FUNCTION min_u_int64_le;
- DROP FUNCTION min_float_be;
- DROP FUNCTION min_float_le;
- DROP FUNCTION min_double_be;
- DROP FUNCTION min_double_le;
- 
-
- DROP FUNCTION max_int32_be;
- DROP FUNCTION max_int32_le;
- DROP FUNCTION max_int64_be;
- DROP FUNCTION max_int64_le;
- DROP FUNCTION max_u_int32_be;
- DROP FUNCTION max_u_int32_le;
- DROP FUNCTION max_u_int64_be;
- DROP FUNCTION max_u_int64_le;
- DROP FUNCTION max_float_be;
- DROP FUNCTION max_float_le;
- DROP FUNCTION max_double_be;
- DROP FUNCTION max_double_le;
- 
- */
+#include <mysql.h>
+#include <endian.h>
 
 
+// Define a UDF function operating on arrays stored in Blobs. It accepts one parameter.
+// This is mostly a template for a "fold" on the blob by treating it as an array of "array_type".
+// "name" is the name of the function as seen by MySQL. "return_type" is the return type that goes with it.
+// "array_type" is the type of values contained in the blob given as parameter.
+// "convertion_fct" is a function or macro that takes one parameter and will be used to convert values as they are read. This is mostly intended to handle endianness.
+// "initial_value" is a value of type "return_type" that will be used to initialize the result.
+// All values read from the blob will then be combined into it using "aggregation_fct" (which must be a function/macro accepting two parameters and returning the updated value).
 #define DEFINE_ARRAY_FCT(name, return_type, array_type, convertion_fct, aggregation_fct, initial_value) \
 my_bool name##_init(UDF_INIT *initid, UDF_ARGS *args, char *message) {\
   if(args->arg_count != 1) {\
