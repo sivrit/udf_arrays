@@ -170,7 +170,7 @@ my_bool name##_init(UDF_INIT *initid, UDF_ARGS *args, char *message) {\
     const u_int32_t len = args->lengths[0];\
     if(len % sizeof(array_type) != 0) {\
       char error[255];\
-      snprintf(error, sizeof(error), "Bad length for an array of ##array_type##: %d is not a multiple of %lu", len, sizeof(array_type));\
+      snprintf(error, sizeof(error), "Bad length for an array of " #array_type ": %d is not a multiple of %lu", len, sizeof(array_type));\
       strmov(message, error);\
       return 1;\
     }\
