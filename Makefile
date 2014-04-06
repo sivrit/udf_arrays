@@ -1,6 +1,6 @@
 
 CC = gcc
-CFLAGS = -Wall -std=c99 -fPIC -g
+CFLAGS = -Wall -std=c99 -fPIC
 INCLUDES = -I/usr/include/mysql/
 TEST_LINK = -lcunit
 
