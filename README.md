@@ -14,7 +14,7 @@ Functions are named "operation_type_endianness". Available operations are curent
 
 Example:
 ```SQL
-SOURCE /spare/projects/UDF/create.sql;
+SOURCE create.sql;
 
 SELECT min_int32_be(0x0000000100000002);
 -- 1
