@@ -145,7 +145,7 @@ char sample_double_be_C[] = {0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x
 char sample_double_le_C[] = {0x01,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00, 
                              0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xEF,  0x7F};
 
-
+char sample_badsize[] = {0x00,  0x00,  0x00,  0x00, 0x00};
 
 
 // Macros to avoid too much copy paste.
@@ -165,6 +165,7 @@ void test_ ## function ## _ ## group(void) {\
   args.args=args2;\
   ulong lengths[1] = {sizeof( input )};\
   args.lengths = lengths;\
+  args.arg_count = 1;\
   \
   result_type result = function(&initid, &args, isNull, error);\
   \
@@ -184,10 +185,30 @@ void test_ ## function ## _null(void) {\
   args.args=args2;\
   ulong lengths[1] = { 0 };\
   args.lengths = lengths;\
+  args.arg_count = 1;\
   \
   function(&initid, &args, isNull, error);\
   \
   CU_ASSERT_EQUAL(*isNull, 1);\
+}
+
+// Define a test checking that "function_init" returns an error if the size of the argument is not valid
+#define DEFINE_TEST_BAD_SIZE(function) \
+void test_ ## function ## _badsize(void) {\
+  UDF_INIT initid;\
+  UDF_ARGS args;\
+  char message[255] = "";\
+  \
+  char* args2[1] = { sample_badsize };\
+  args.args=args2;\
+  ulong lengths[1] = { sizeof(sample_badsize) };\
+  args.lengths = lengths;\
+  args.arg_count = 1;\
+  \
+  my_bool result = function ## _init (&initid, &args, message);\
+  \
+  CU_ASSERT_EQUAL(result, 1);\
+  CU_ASSERT_NOT_EQUAL(strnlen(message, sizeof(message)), 0)\
 }
 
 // Define all tests (including NULL input and both endianness) for an operation (op: sum, max...) and a value "type" (int32, int64, etc).
@@ -202,7 +223,10 @@ DEFINE_TEST_WITH_EXPECT(op ## _ ## type ## _le, B, result_type, sample_ ## type 
 DEFINE_TEST_WITH_EXPECT(op ## _ ## type ## _le, C, result_type, sample_ ## type ## _le_C,  resC)\
 \
 DEFINE_TEST_NULL_ARG(op ## _ ## type ## _be)\
-DEFINE_TEST_NULL_ARG(op ## _ ## type ## _le)
+DEFINE_TEST_NULL_ARG(op ## _ ## type ## _le)\
+\
+DEFINE_TEST_BAD_SIZE(op ## _ ## type ## _be)\
+DEFINE_TEST_BAD_SIZE(op ## _ ## type ## _le)
 
 DEFINE_TESTS(sum, int32, int64_t, 3, -2, -1)
 DEFINE_TESTS(sum, int64, int64_t, 3, -2, -1)
@@ -267,11 +291,19 @@ CU_TestInfo tests_input_null[] = {
   CU_TEST_INFO_NULL,
 };
 
+CU_TestInfo tests_input_badsize[] = {
+  DECLARE_TESTS(sum, badsize)
+  DECLARE_TESTS(min, badsize)
+  DECLARE_TESTS(max, badsize)
+  CU_TEST_INFO_NULL,
+};
+
 CU_SuiteInfo suites[] = {
-  { "Test on input { 0,  1,  2 }",  NULL, NULL, tests_input_A },
-  { "Test on input { 3, -4, -1 }",  NULL, NULL, tests_input_B },
-  { "Test on input { MIN, MAX }",   NULL, NULL, tests_input_C },
-  { "Test with NULL input",         NULL, NULL, tests_input_null },
+  { "Test on input { 0,  1,  2 }",   NULL, NULL, tests_input_A },
+  { "Test on input { 3, -4, -1 }",   NULL, NULL, tests_input_B },
+  { "Test on input { MIN, MAX }",    NULL, NULL, tests_input_C },
+  { "Test with NULL input",          NULL, NULL, tests_input_null },
+  { "Test with wrongly sized input", NULL, NULL, tests_input_badsize },
   CU_SUITE_INFO_NULL,
 };
 

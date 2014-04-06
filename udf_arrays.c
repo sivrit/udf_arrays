@@ -135,7 +135,7 @@ my_bool name##_init(UDF_INIT *initid, UDF_ARGS *args, char *message) {\
   }\
   \
   initid->maybe_null=1;\
-    \
+  \
   return 0;\
 }\
 \
