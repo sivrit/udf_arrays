@@ -13,9 +13,9 @@ libudf_arrays.so: udf_arrays.o
 	$(CC) $(CFLAGS) -shared -o libudf_arrays.so udf_arrays.o
 
 clean:
-	rm *.o
-	rm libudf_arrays.so
-	rm test_udf_arrays
+	rm -f *.o
+	rm -f libudf_arrays.so
+	rm -f test_udf_arrays
 
 test: udf_arrays.o test_udf_arrays
 	./test_udf_arrays
