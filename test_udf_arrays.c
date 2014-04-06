@@ -181,8 +181,8 @@ DEFINE_TESTS(max, u_int64, u_int64_t, 2, 4, 18446744073709551615UL)
 
 #define STR(a) #a
 #define DECLARE_TESTS_BE_LE(fct, group) \
-  { STR(fct ## _le), test_ ## fct ## _be_ ## group },\
-  { STR(fct ## _be), test_ ## fct ## _le_ ## group },
+  { STR(fct ## _be), test_ ## fct ## _be_ ## group },\
+  { STR(fct ## _le), test_ ## fct ## _le_ ## group },
   
 
 #define DECLARE_TESTS(op, group) \
