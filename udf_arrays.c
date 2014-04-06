@@ -71,6 +71,11 @@ typedef long long longlong;
  * sum_u_int64_be - Compute the sum of an array of unsigned 64 bits big endian integers
  * sum_u_int64_le - Compute the sum of an array of unsigned 64 bits little endian integers
  * 
+ * sum_float_be - Compute the sum of an array of big endian floats
+ * sum_float_le - Compute the sum of an array of little endian floats
+ * sum_double_be - Compute the sum of an array of big endian doubles
+ * sum_double_le - Compute the sum of an array of little endian doubles
+ * 
  * 
  * min_int32_be - Compute the minimum of an array of signed 32 bits big endian integers
  * min_int32_le - Compute the minimum of an array of signed 32 bits little endian integers
@@ -82,6 +87,11 @@ typedef long long longlong;
  * min_u_int64_be - Compute the minimum of an array of unsigned 64 bits big endian integers
  * min_u_int64_le - Compute the minimum of an array of unsigned 64 bits little endian integers
  * 
+ * min_float_be - Compute the minimum of an array of big endian floats
+ * min_float_le - Compute the minimum of an array of little endian floats
+ * min_double_be - Compute the minimum of an array of big endian doubles
+ * min_double_le - Compute the minimum of an array of little endian doubles
+ * 
  * 
  * max_int32_be - Compute the maximum of an array of signed 32 bits big endian integers
  * max_int32_le - Compute the maximum of an array of signed 32 bits little endian integers
@@ -92,6 +102,11 @@ typedef long long longlong;
  * max_u_int32_le - Compute the maximum of an array of unsigned 32 bits little endian integers
  * max_u_int64_be - Compute the maximum of an array of unsigned 64 bits big endian integers
  * max_u_int64_le - Compute the maximum of an array of unsigned 64 bits little endian integers
+ * 
+ * max_float_be - Compute the maximum of an array of big endian floats
+ * max_float_le - Compute the maximum of an array of little endian floats
+ * max_double_be - Compute the maximum of an array of big endian doubles
+ * max_double_le - Compute the maximum of an array of little endian doubles
  * 
  */
 
