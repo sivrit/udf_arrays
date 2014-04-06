@@ -113,45 +113,45 @@ typedef long long longlong;
 /*
 
 create all functions:
- CREATE FUNCTION sum_int32_be RETURNS INTEGER SONAME "udf_arrays.so";
- CREATE FUNCTION sum_int32_le RETURNS INTEGER SONAME "udf_arrays.so";
- CREATE FUNCTION sum_int64_be RETURNS INTEGER SONAME "udf_arrays.so";
- CREATE FUNCTION sum_int64_le RETURNS INTEGER SONAME "udf_arrays.so";
- CREATE FUNCTION sum_u_int32_be RETURNS INTEGER SONAME "udf_arrays.so";
- CREATE FUNCTION sum_u_int32_le RETURNS INTEGER SONAME "udf_arrays.so";
- CREATE FUNCTION sum_u_int64_be RETURNS INTEGER SONAME "udf_arrays.so";
- CREATE FUNCTION sum_u_int64_le RETURNS INTEGER SONAME "udf_arrays.so";
- CREATE FUNCTION sum_float_be RETURNS REAL SONAME "udf_arrays.so";
- CREATE FUNCTION sum_float_le RETURNS REAL SONAME "udf_arrays.so";
- CREATE FUNCTION sum_double_be RETURNS REAL SONAME "udf_arrays.so";
- CREATE FUNCTION sum_double_le RETURNS REAL SONAME "udf_arrays.so";
+ CREATE FUNCTION sum_int32_be RETURNS INTEGER SONAME "libudf_arrays.so";
+ CREATE FUNCTION sum_int32_le RETURNS INTEGER SONAME "libudf_arrays.so";
+ CREATE FUNCTION sum_int64_be RETURNS INTEGER SONAME "libudf_arrays.so";
+ CREATE FUNCTION sum_int64_le RETURNS INTEGER SONAME "libudf_arrays.so";
+ CREATE FUNCTION sum_u_int32_be RETURNS INTEGER SONAME "libudf_arrays.so";
+ CREATE FUNCTION sum_u_int32_le RETURNS INTEGER SONAME "libudf_arrays.so";
+ CREATE FUNCTION sum_u_int64_be RETURNS INTEGER SONAME "libudf_arrays.so";
+ CREATE FUNCTION sum_u_int64_le RETURNS INTEGER SONAME "libudf_arrays.so";
+ CREATE FUNCTION sum_float_be RETURNS REAL SONAME "libudf_arrays.so";
+ CREATE FUNCTION sum_float_le RETURNS REAL SONAME "libudf_arrays.so";
+ CREATE FUNCTION sum_double_be RETURNS REAL SONAME "libudf_arrays.so";
+ CREATE FUNCTION sum_double_le RETURNS REAL SONAME "libudf_arrays.so";
 
- CREATE FUNCTION min_int32_be RETURNS INTEGER SONAME "udf_arrays.so";
- CREATE FUNCTION min_int32_le RETURNS INTEGER SONAME "udf_arrays.so";
- CREATE FUNCTION min_int64_be RETURNS INTEGER SONAME "udf_arrays.so";
- CREATE FUNCTION min_int64_le RETURNS INTEGER SONAME "udf_arrays.so";
- CREATE FUNCTION min_u_int32_be RETURNS INTEGER SONAME "udf_arrays.so";
- CREATE FUNCTION min_u_int32_le RETURNS INTEGER SONAME "udf_arrays.so";
- CREATE FUNCTION min_u_int64_be RETURNS INTEGER SONAME "udf_arrays.so";
- CREATE FUNCTION min_u_int64_le RETURNS INTEGER SONAME "udf_arrays.so";
- CREATE FUNCTION min_float_be RETURNS REAL SONAME "udf_arrays.so";
- CREATE FUNCTION min_float_le RETURNS REAL SONAME "udf_arrays.so";
- CREATE FUNCTION min_double_be RETURNS REAL SONAME "udf_arrays.so";
- CREATE FUNCTION min_double_le RETURNS REAL SONAME "udf_arrays.so";
+ CREATE FUNCTION min_int32_be RETURNS INTEGER SONAME "libudf_arrays.so";
+ CREATE FUNCTION min_int32_le RETURNS INTEGER SONAME "libudf_arrays.so";
+ CREATE FUNCTION min_int64_be RETURNS INTEGER SONAME "libudf_arrays.so";
+ CREATE FUNCTION min_int64_le RETURNS INTEGER SONAME "libudf_arrays.so";
+ CREATE FUNCTION min_u_int32_be RETURNS INTEGER SONAME "libudf_arrays.so";
+ CREATE FUNCTION min_u_int32_le RETURNS INTEGER SONAME "libudf_arrays.so";
+ CREATE FUNCTION min_u_int64_be RETURNS INTEGER SONAME "libudf_arrays.so";
+ CREATE FUNCTION min_u_int64_le RETURNS INTEGER SONAME "libudf_arrays.so";
+ CREATE FUNCTION min_float_be RETURNS REAL SONAME "libudf_arrays.so";
+ CREATE FUNCTION min_float_le RETURNS REAL SONAME "libudf_arrays.so";
+ CREATE FUNCTION min_double_be RETURNS REAL SONAME "libudf_arrays.so";
+ CREATE FUNCTION min_double_le RETURNS REAL SONAME "libudf_arrays.so";
  
  
- CREATE FUNCTION max_int32_be RETURNS INTEGER SONAME "udf_arrays.so";
- CREATE FUNCTION max_int32_le RETURNS INTEGER SONAME "udf_arrays.so";
- CREATE FUNCTION max_int64_be RETURNS INTEGER SONAME "udf_arrays.so";
- CREATE FUNCTION max_int64_le RETURNS INTEGER SONAME "udf_arrays.so";
- CREATE FUNCTION max_u_int32_be RETURNS INTEGER SONAME "udf_arrays.so";
- CREATE FUNCTION max_u_int32_le RETURNS INTEGER SONAME "udf_arrays.so";
- CREATE FUNCTION max_u_int64_be RETURNS INTEGER SONAME "udf_arrays.so";
- CREATE FUNCTION max_u_int64_le RETURNS INTEGER SONAME "udf_arrays.so";
- CREATE FUNCTION max_float_be RETURNS REAL SONAME "udf_arrays.so";
- CREATE FUNCTION max_float_le RETURNS REAL SONAME "udf_arrays.so";
- CREATE FUNCTION max_double_be RETURNS REAL SONAME "udf_arrays.so";
- CREATE FUNCTION max_double_le RETURNS REAL SONAME "udf_arrays.so";
+ CREATE FUNCTION max_int32_be RETURNS INTEGER SONAME "libudf_arrays.so";
+ CREATE FUNCTION max_int32_le RETURNS INTEGER SONAME "libudf_arrays.so";
+ CREATE FUNCTION max_int64_be RETURNS INTEGER SONAME "libudf_arrays.so";
+ CREATE FUNCTION max_int64_le RETURNS INTEGER SONAME "libudf_arrays.so";
+ CREATE FUNCTION max_u_int32_be RETURNS INTEGER SONAME "libudf_arrays.so";
+ CREATE FUNCTION max_u_int32_le RETURNS INTEGER SONAME "libudf_arrays.so";
+ CREATE FUNCTION max_u_int64_be RETURNS INTEGER SONAME "libudf_arrays.so";
+ CREATE FUNCTION max_u_int64_le RETURNS INTEGER SONAME "libudf_arrays.so";
+ CREATE FUNCTION max_float_be RETURNS REAL SONAME "libudf_arrays.so";
+ CREATE FUNCTION max_float_le RETURNS REAL SONAME "libudf_arrays.so";
+ CREATE FUNCTION max_double_be RETURNS REAL SONAME "libudf_arrays.so";
+ CREATE FUNCTION max_double_le RETURNS REAL SONAME "libudf_arrays.so";
  
  
 drop all functions:
