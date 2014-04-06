@@ -106,7 +106,10 @@ create all functions:
  CREATE FUNCTION sum_u_int32_le RETURNS INTEGER SONAME "udf_arrays.so";
  CREATE FUNCTION sum_u_int64_be RETURNS INTEGER SONAME "udf_arrays.so";
  CREATE FUNCTION sum_u_int64_le RETURNS INTEGER SONAME "udf_arrays.so";
-
+ CREATE FUNCTION sum_float_be RETURNS REAL SONAME "udf_arrays.so";
+ CREATE FUNCTION sum_float_le RETURNS REAL SONAME "udf_arrays.so";
+ CREATE FUNCTION sum_double_be RETURNS REAL SONAME "udf_arrays.so";
+ CREATE FUNCTION sum_double_le RETURNS REAL SONAME "udf_arrays.so";
 
  CREATE FUNCTION min_int32_be RETURNS INTEGER SONAME "udf_arrays.so";
  CREATE FUNCTION min_int32_le RETURNS INTEGER SONAME "udf_arrays.so";
@@ -116,7 +119,12 @@ create all functions:
  CREATE FUNCTION min_u_int32_le RETURNS INTEGER SONAME "udf_arrays.so";
  CREATE FUNCTION min_u_int64_be RETURNS INTEGER SONAME "udf_arrays.so";
  CREATE FUNCTION min_u_int64_le RETURNS INTEGER SONAME "udf_arrays.so";
-
+ CREATE FUNCTION min_float_be RETURNS REAL SONAME "udf_arrays.so";
+ CREATE FUNCTION min_float_le RETURNS REAL SONAME "udf_arrays.so";
+ CREATE FUNCTION min_double_be RETURNS REAL SONAME "udf_arrays.so";
+ CREATE FUNCTION min_double_le RETURNS REAL SONAME "udf_arrays.so";
+ 
+ 
  CREATE FUNCTION max_int32_be RETURNS INTEGER SONAME "udf_arrays.so";
  CREATE FUNCTION max_int32_le RETURNS INTEGER SONAME "udf_arrays.so";
  CREATE FUNCTION max_int64_be RETURNS INTEGER SONAME "udf_arrays.so";
@@ -125,7 +133,12 @@ create all functions:
  CREATE FUNCTION max_u_int32_le RETURNS INTEGER SONAME "udf_arrays.so";
  CREATE FUNCTION max_u_int64_be RETURNS INTEGER SONAME "udf_arrays.so";
  CREATE FUNCTION max_u_int64_le RETURNS INTEGER SONAME "udf_arrays.so";
-
+ CREATE FUNCTION max_float_be RETURNS REAL SONAME "udf_arrays.so";
+ CREATE FUNCTION max_float_le RETURNS REAL SONAME "udf_arrays.so";
+ CREATE FUNCTION max_double_be RETURNS REAL SONAME "udf_arrays.so";
+ CREATE FUNCTION max_double_le RETURNS REAL SONAME "udf_arrays.so";
+ 
+ 
 drop all functions:
  DROP FUNCTION sum_int32_be;
  DROP FUNCTION sum_int32_le;
@@ -135,7 +148,11 @@ drop all functions:
  DROP FUNCTION sum_u_int32_le;
  DROP FUNCTION sum_u_int64_be;
  DROP FUNCTION sum_u_int64_le;
-
+ DROP FUNCTION sum_float_be;
+ DROP FUNCTION sum_float_le;
+ DROP FUNCTION sum_double_be;
+ DROP FUNCTION sum_double_le;
+ 
 
  DROP FUNCTION min_int32_be;
  DROP FUNCTION min_int32_le;
@@ -145,7 +162,11 @@ drop all functions:
  DROP FUNCTION min_u_int32_le;
  DROP FUNCTION min_u_int64_be;
  DROP FUNCTION min_u_int64_le;
-
+ DROP FUNCTION min_float_be;
+ DROP FUNCTION min_float_le;
+ DROP FUNCTION min_double_be;
+ DROP FUNCTION min_double_le;
+ 
 
  DROP FUNCTION max_int32_be;
  DROP FUNCTION max_int32_le;
@@ -155,7 +176,11 @@ drop all functions:
  DROP FUNCTION max_u_int32_le;
  DROP FUNCTION max_u_int64_be;
  DROP FUNCTION max_u_int64_le;
-
+ DROP FUNCTION max_float_be;
+ DROP FUNCTION max_float_le;
+ DROP FUNCTION max_double_be;
+ DROP FUNCTION max_double_le;
+ 
  */
 
 
@@ -216,6 +241,54 @@ return_type name(UDF_INIT *initid __attribute__((unused)), UDF_ARGS *args,\
 #define min_macro(a, b) ((a)>(b)?(b):(a))
 #define max_macro(a, b) ((a)>(b)?(a):(b))
 
+
+// be32toh, etc. fails for floats and doubles.
+// So we define our own functions for this.
+#define IDENTITY(a) (a)
+float swap_float(float f) {
+   float a;
+   unsigned char *dst = (unsigned char *)&a;
+   unsigned char *src = (unsigned char *)&f;
+
+   dst[0] = src[3];
+   dst[1] = src[2];
+   dst[2] = src[1];
+   dst[3] = src[0];
+
+   return a;
+}
+
+double swap_double(double d) {
+   double a;
+   unsigned char *dst = (unsigned char *)&a;
+   unsigned char *src = (unsigned char *)&d;
+   
+   dst[0] = src[7];
+   dst[1] = src[6];
+   dst[2] = src[5];
+   dst[3] = src[4];
+   dst[4] = src[3];
+   dst[5] = src[2];
+   dst[6] = src[1];
+   dst[7] = src[0];
+
+   return a;
+}
+
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+#define float_letoh(a) IDENTITY(a)
+#define float_betoh(a) swap_float(a)
+#define double_letoh(a) IDENTITY(a)
+#define double_betoh(a) swap_double(a)
+#elif __BYTE_ORDER == __BIG_ENDIAN
+#define float_betoh(a) IDENTITY(a)
+#define float_letoh(a) swap_float(a)
+#define double_betoh(a) IDENTITY(a)
+#define double_letoh(a) swap_double(a)
+#else
+#error "Failed to determine endianness"
+#endif
+
 // sums
 DEFINE_ARRAY_FCT(sum_int32_be, int64_t, int32_t, be32toh, sum_macro, 0)
 DEFINE_ARRAY_FCT(sum_int32_le, int64_t, int32_t, le32toh, sum_macro, 0)
@@ -226,8 +299,14 @@ DEFINE_ARRAY_FCT(sum_int64_le, int64_t, int64_t, le64toh, sum_macro, 0)
 DEFINE_ARRAY_FCT(sum_u_int32_be, int64_t, u_int32_t, be32toh, sum_macro, 0)
 DEFINE_ARRAY_FCT(sum_u_int32_le, int64_t, u_int32_t, le32toh, sum_macro, 0)
 
-DEFINE_ARRAY_FCT(sum_u_int64_be,   int64_t, u_int64_t, be64toh, sum_macro, 0)
+DEFINE_ARRAY_FCT(sum_u_int64_be, u_int64_t, u_int64_t, be64toh, sum_macro, 0)
 DEFINE_ARRAY_FCT(sum_u_int64_le, u_int64_t, u_int64_t, le64toh, sum_macro, 0)
+
+DEFINE_ARRAY_FCT(sum_float_be, double, float, float_betoh, sum_macro, 0)
+DEFINE_ARRAY_FCT(sum_float_le, double, float, float_letoh, sum_macro, 0)
+
+DEFINE_ARRAY_FCT(sum_double_be, double, double, double_betoh, sum_macro, 0)
+DEFINE_ARRAY_FCT(sum_double_le, double, double, double_letoh, sum_macro, 0)
 
 // mins
 DEFINE_ARRAY_FCT(min_int32_be, int64_t, int32_t, be32toh, min_macro, INT_MAX)
@@ -242,6 +321,12 @@ DEFINE_ARRAY_FCT(min_u_int32_le, int64_t, u_int32_t, le32toh, min_macro, UINT_MA
 DEFINE_ARRAY_FCT(min_u_int64_be, u_int64_t, u_int64_t, be64toh, min_macro, ULONG_LONG_MAX)
 DEFINE_ARRAY_FCT(min_u_int64_le, u_int64_t, u_int64_t, le64toh, min_macro, ULONG_LONG_MAX)
 
+DEFINE_ARRAY_FCT(min_float_be, double, float, float_betoh, min_macro, INFINITY)
+DEFINE_ARRAY_FCT(min_float_le, double, float, float_letoh, min_macro, INFINITY)
+
+DEFINE_ARRAY_FCT(min_double_be, double, double, double_betoh, min_macro, INFINITY)
+DEFINE_ARRAY_FCT(min_double_le, double, double, double_letoh, min_macro, INFINITY)
+
 // maxes
 DEFINE_ARRAY_FCT(max_int32_be, int64_t, int32_t, be32toh, max_macro, INT_MIN)
 DEFINE_ARRAY_FCT(max_int32_le, int64_t, int32_t, le32toh, max_macro, INT_MIN)
@@ -254,3 +339,9 @@ DEFINE_ARRAY_FCT(max_u_int32_le, int64_t, u_int32_t, le32toh, max_macro, 0)
 
 DEFINE_ARRAY_FCT(max_u_int64_be, u_int64_t, u_int64_t, be64toh, max_macro, 0)
 DEFINE_ARRAY_FCT(max_u_int64_le, u_int64_t, u_int64_t, le64toh, max_macro, 0)
+
+DEFINE_ARRAY_FCT(max_float_be, double, float, float_betoh, max_macro, -INFINITY)
+DEFINE_ARRAY_FCT(max_float_le, double, float, float_letoh, max_macro, -INFINITY)
+
+DEFINE_ARRAY_FCT(max_double_be, double, double, double_betoh, max_macro, -INFINITY)
+DEFINE_ARRAY_FCT(max_double_le, double, double, double_letoh, max_macro, -INFINITY)

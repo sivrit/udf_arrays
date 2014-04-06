@@ -58,6 +58,21 @@ char sample_int64_le_A[] = {0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x0
 #define sample_u_int64_be_A sample_int64_be_A
 #define sample_u_int64_le_A sample_int64_le_A
 
+char sample_float_be_A[] = {0x00,  0x00,  0x00,  0x00,
+                            0x3F,  0x80,  0x00,  0x00,
+                            0x40,  0x00,  0x00,  0x00};
+char sample_float_le_A[] = {0x00,  0x00,  0x00,  0x00,
+                            0x00,  0x00,  0x80,  0x3F,
+                            0x00,  0x00,  0x00,  0x40};
+
+char sample_double_be_A[] = {0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,
+                             0x3F,  0xF0,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,
+                             0x40,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00};
+char sample_double_le_A[] = {0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,
+                             0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0xF0,  0x3F,
+                             0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x40};
+
+
 // Sample B is { 3, -4, -1 }, or { 3, 4, 1 } for unsigned data
 char sample_int32_be_B[] = {0x00,  0x00,  0x00,  0x03,
                             0xFF,  0xFF,  0xFF,  0xFC, 
@@ -87,6 +102,19 @@ char sample_u_int64_le_B[] = {0x03,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0
                               0x04,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00, 
                               0x01,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00};
 
+char sample_float_be_B[] = {0x40,  0x40,  0x00,  0x00,
+                            0xC0,  0x80,  0x00,  0x00, 
+                            0xBF,  0x80,  0x00,  0x00};
+char sample_float_le_B[] = {0x00,  0x00,  0x40,  0x40,
+                            0x00,  0x00,  0x80,  0xC0, 
+                            0x00,  0x00,  0x80,  0xBF};
+
+char sample_double_be_B[] = {0x40,  0x08,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00, 
+                             0xC0,  0x10,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,
+                             0xBF,  0xF0,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00};
+char sample_double_le_B[] = {0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x08,  0x40, 
+                             0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x10,  0xC0,
+                             0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0xF0,  0xBF};
 
 // Sample C is {min, max} value (ex: -2147483648 and 2147483647)
 char sample_int32_be_C[] = {0x80,  0x00,  0x00,  0x00, 
@@ -106,6 +134,18 @@ char sample_u_int32_be_C[] = {0x00,  0x00,  0x00,  0x00,
 char sample_u_int64_be_C[] = {0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00, 
                               0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF};
 #define sample_u_int64_le_C sample_u_int64_be_C
+
+char sample_float_be_C[] = {0x00,  0x00,  0x00,  0x01,
+                            0x7F,  0x7F,  0xFF,  0xFF};
+char sample_float_le_C[] = {0x01,  0x00,  0x00,  0x00,
+                            0xFF,  0xFF,  0x7F,  0x7F};
+
+char sample_double_be_C[] = {0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x01, 
+                             0x7F,  0xEF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF};
+char sample_double_le_C[] = {0x01,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00, 
+                             0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xEF,  0x7F};
+
+
 
 
 // Macros to avoid too much copy paste.
@@ -168,16 +208,22 @@ DEFINE_TESTS(sum, int32, int64_t, 3, -2, -1)
 DEFINE_TESTS(sum, int64, int64_t, 3, -2, -1)
 DEFINE_TESTS(sum, u_int32, u_int64_t, 3, 8, 4294967295)
 DEFINE_TESTS(sum, u_int64, u_int64_t, 3, 8, 18446744073709551615UL)
+DEFINE_TESTS(sum, float, double, 3.0F, -2.0f, 3.4028235E38f)
+DEFINE_TESTS(sum, double, double, 3, -2, 1.7976931348623157E308)
 
 DEFINE_TESTS(min, int32, int64_t, 0, -4, -2147483648)
-DEFINE_TESTS(min, int64, int64_t, 0, -4, -(9223372036854775808UL))
+DEFINE_TESTS(min, int64, int64_t, 0, -4, -9223372036854775808UL)
 DEFINE_TESTS(min, u_int32, u_int64_t, 0, 1, 0)
 DEFINE_TESTS(min, u_int64, u_int64_t, 0, 1, 0)
+DEFINE_TESTS(min, float, double, 0, -4, 1.4E-45f)
+DEFINE_TESTS(min, double, double, 0, -4, 4.9E-324)
 
 DEFINE_TESTS(max, int32, int64_t, 2, 3, 2147483647)
 DEFINE_TESTS(max, int64, int64_t, 2, 3, 9223372036854775807L)
 DEFINE_TESTS(max, u_int32, u_int64_t, 2, 4, 4294967295)
 DEFINE_TESTS(max, u_int64, u_int64_t, 2, 4, 18446744073709551615UL)
+DEFINE_TESTS(max, float, double, 2, 3, 3.4028235E38f)
+DEFINE_TESTS(max, double, double, 2, 3, 1.7976931348623157E308)
 
 #define STR(a) #a
 #define DECLARE_TESTS_BE_LE(fct, group) \
@@ -189,8 +235,9 @@ DEFINE_TESTS(max, u_int64, u_int64_t, 2, 4, 18446744073709551615UL)
   DECLARE_TESTS_BE_LE(op ## _int32, group)\
   DECLARE_TESTS_BE_LE(op ## _int64, group)\
   DECLARE_TESTS_BE_LE(op ## _u_int32, group)\
-  DECLARE_TESTS_BE_LE(op ## _u_int64, group)
-  
+  DECLARE_TESTS_BE_LE(op ## _u_int64, group)\
+  DECLARE_TESTS_BE_LE(op ## _float, group)\
+  DECLARE_TESTS_BE_LE(op ## _double, group)
 
 CU_TestInfo tests_input_A[] = {
   DECLARE_TESTS(sum, A)
@@ -212,19 +259,6 @@ CU_TestInfo tests_input_C[] = {
   DECLARE_TESTS(max, C)
   CU_TEST_INFO_NULL,
 };
-
-void testExtr(void){
-    CU_ASSERT_EQUAL(INT_MAX, 2147483647);
-    CU_ASSERT_EQUAL(UINT_MAX, 4294967295);
-    CU_ASSERT_EQUAL(LONG_MAX, 9223372036854775807L);
-    CU_ASSERT_EQUAL(ULONG_MAX, 18446744073709551615UL);
-    CU_ASSERT_EQUAL(LONG_LONG_MAX, 9223372036854775807L);
-    CU_ASSERT_EQUAL(ULONG_LONG_MAX, 18446744073709551615UL);
-    
-    CU_ASSERT_EQUAL(INT_MIN, -2147483648);
-    CU_ASSERT_EQUAL(LONG_MIN, -(9223372036854775808UL));
-    CU_ASSERT_EQUAL(LONG_LONG_MIN, -(9223372036854775808UL));
-}
 
 CU_TestInfo tests_input_null[] = {
   DECLARE_TESTS(sum, null)
